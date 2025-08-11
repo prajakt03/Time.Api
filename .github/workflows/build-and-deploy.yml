@@ -1,0 +1,51 @@
+name: Time Service Api
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+env:
+  AZURE_WEB_APP_PACKAGE_PATH: "./Time.Api/publish"
+  DOTNET_VERSION: "9.x"
+  SOLUTION_PATH: "Time.Api.sln"
+  API_PROJECT_PATH: "Time.Api"
+  PUBLISH_DIR: "./publish"
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ununtu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .net
+      - uses: actions/setup-dotnet@v4
+      - with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet-restore ${{env.SOLUTION_PATH}}
+
+      - name: Build
+        run: dotnet-build ${{env.SOLUTION_PATH}} -configuration Release --no-restore
+
+      - name: Test
+        run: dotnet-test ${{env.SOLUTION_PATH}} -configuration Release --no-restore --no-build --verbosity normal
+
+      - name: Publish
+        run: dotnet-publish ${{env.SOLUTION_PATH}} -configuration Release --no-restore --no-build --property:PublishDir=${{env.PUBLISH_DIR}}
+
+      - name: Publish Artifacts
+      - uses: actions/upload-artifact@v4
+      - with:
+          name: webapp
+          path: ${{env.AZURE_WEB_APP_PACKAGE_PATH}}}
+
+      
+
+
+
+
+     
